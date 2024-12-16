@@ -123,3 +123,31 @@
     </script>
 </body>
 </html>
+/*
+const chatBody = document.getElementById('chat-body');
+        const speakButton = document.getElementById('speak-button');
+
+        // Speech recognition setup
+        const SpeechRecognition = window.SpeechRecognition || window.webkitSpeechRecognition;
+        const recognition = new SpeechRecognition();
+
+        recognition.onresult = async (event) => {
+            const userText = event.results[0][0].transcript;
+
+            console.log(userText);
+
+            displayMessage(userText, 'user-message');
+
+            try {
+                const response = await fetch(`http://8000/chatresponse/${encodeURIComponent(userText)}`);
+                const botText = await response.text();
+                displayMessage(botText, 'bot-message');
+            } catch (error) {
+                displayMessage('Error: Unable to fetch response.', 'bot-message');
+            }
+        };
+
+        speakButton.addEventListener('click', () => {
+            recognition.start();
+        });
+*/
