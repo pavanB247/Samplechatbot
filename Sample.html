@@ -1,0 +1,125 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Speech Recognition Chatbot</title>
+    <style>
+        body {
+            font-family: Arial, sans-serif;
+            background-color: #f4f4f4;
+            margin: 0;
+            padding: 0;
+            display: flex;
+            justify-content: center;
+            align-items: center;
+            height: 100vh;
+        }
+        .chat-container {
+            width: 400px;
+            background: white;
+            box-shadow: 0 0 10px rgba(0, 0, 0, 0.1);
+            border-radius: 8px;
+            overflow: hidden;
+        }
+        .chat-header {
+            background: #007bff;
+            color: white;
+            padding: 10px;
+            text-align: center;
+            font-size: 18px;
+        }
+        .chat-body {
+            padding: 15px;
+            height: 300px;
+            overflow-y: auto;
+            display: flex;
+            flex-direction: column;
+        }
+        .chat-message {
+            margin: 5px 0;
+        }
+        .user-message {
+            align-self: flex-end;
+            background: #d1e7dd;
+            padding: 10px;
+            border-radius: 8px;
+            max-width: 70%;
+        }
+        .bot-message {
+            align-self: flex-start;
+            background: #f8d7da;
+            padding: 10px;
+            border-radius: 8px;
+            max-width: 70%;
+        }
+        .chat-footer {
+            display: flex;
+            padding: 10px;
+            border-top: 1px solid #ddd;
+        }
+        .chat-footer button {
+            background: #007bff;
+            color: white;
+            border: none;
+            padding: 10px;
+            border-radius: 4px;
+            cursor: pointer;
+        }
+        .chat-footer button:hover {
+            background: #0056b3;
+        }
+    </style>
+</head>
+<body>
+    <div class="chat-container">
+        <div class="chat-header">Chatbot</div>
+        <div class="chat-body" id="chat-body"></div>
+        <div class="chat-footer">
+            <button id="speak-button">🎤 Speak</button>
+        </div>
+    </div>
+
+    <script>
+        const chatBody = document.getElementById('chat-body');
+        const speakButton = document.getElementById('speak-button');
+
+        // Speech recognition setup
+        const SpeechRecognition = window.SpeechRecognition || window.webkitSpeechRecognition;
+        const recognition = new SpeechRecognition();
+
+        recognition.onstart = () => {
+            speakButton.textContent = '🎤 Listening...';
+        };
+
+        recognition.onend = () => {
+            speakButton.textContent = '🎤 Speak';
+        };
+
+        recognition.onresult = async (event) => {
+            const userText = event.results[0][0].transcript;
+            displayMessage(userText, 'user-message');
+
+            try {
+                const response = await fetch(`http://8000/chatresponse/${encodeURIComponent(userText)}`);
+                const botText = await response.text();
+                displayMessage(botText, 'bot-message');
+            } catch (error) {
+                displayMessage('Error: Unable to fetch response.', 'bot-message');
+            }
+        };
+
+        speakButton.addEventListener('click', () => {
+            recognition.start();
+        });
+
+        function displayMessage(text, className) {
+            const messageDiv = document.createElement('div');
+            messageDiv.textContent = text;
+            messageDiv.className = `chat-message ${className}`;
+            chatBody.appendChild(messageDiv);
+            chatBody.scrollTop = chatBody.scrollHeight;
+        }
+    </script>
+</body>
+</html>
